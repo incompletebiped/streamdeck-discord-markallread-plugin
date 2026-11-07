@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+	<head lang="en">
+		<meta charset="utf-8" />
+		<script src="sdpi-components.js"></script>
+	</head>
+	<body>
+		<sdpi-item label="Discord app">
+			<sdpi-select setting="client" default="stable">
+				<option value="stable">Stable</option>
+				<option value="ptb">Public Test Build</option>
+				<option value="canary">Canary</option>
+			</sdpi-select>
+		</sdpi-item>
+
+		<sdpi-item label="Servers to visit">
+			<sdpi-range setting="serverCount" min="1" max="200" step="1" default="60"></sdpi-range>
+		</sdpi-item>
+
+		<sdpi-item label="Pause between steps (ms)">
+			<sdpi-range setting="delayMs" min="40" max="1000" step="10" default="120"></sdpi-range>
+		</sdpi-item>
+
+		<sdpi-item label="Start at the top of the list">
+			<sdpi-checkbox setting="climbToTop" default="true"></sdpi-checkbox>
+		</sdpi-item>
+
+		<sdpi-item label="Ctrl+Alt+Arrow does not rotate my display">
+			<sdpi-checkbox setting="ackRotationHotkey"></sdpi-checkbox>
+		</sdpi-item>
+
+		<p style="margin: 4px 16px 12px; font: 12px/1.45 sans-serif; opacity: 0.85">
+			The key focuses the Discord desktop app and walks the server list with Discord's own shortcuts:
+			Shift+Esc marks the current server read, and Ctrl+Alt+Down moves to the next server. Direct messages
+			are skipped. Expand server folders first, and set the server count to at least the number of icons in
+			your list. Some graphics drivers use Ctrl+Alt+Arrow to rotate the screen, so turn that hotkey off
+			before you check the box above. Leave the keyboard alone while the key runs. This plugin does not log
+			in to Discord.
+		</p>
+	</body>
+</html>
