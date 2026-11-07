@@ -2,17 +2,20 @@
 	"name": "streamdeck-discord-markallread-plugin",
 	"version": "1.0.0",
 	"private": true,
-	"description": "Stream Deck key that marks every Discord server as read.",
+	"description": "Unofficial Stream Deck key that marks every Discord server as read.",
 	"author": "incompletebiped",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/incompletebiped/streamdeck-discord-markallread-plugin.git"
 	},
 	"type": "module",
+	"license": "MIT",
 	"scripts": {
 		"build": "rollup -c",
 		"test": "node --experimental-strip-types --test src/logic.test.ts",
-		"watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.incompletebiped.discord-mark-read\""
+		"watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.incompletebiped.discord-mark-read\"",
+		"validate": "streamdeck validate com.incompletebiped.discord-mark-read.sdPlugin",
+		"pack": "npm run build && streamdeck pack com.incompletebiped.discord-mark-read.sdPlugin --output dist --force"
 	},
 	"dependencies": {
 		"@elgato/streamdeck": "^3.0.4"

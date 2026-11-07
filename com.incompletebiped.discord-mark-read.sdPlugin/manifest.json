@@ -5,19 +5,18 @@
 	"Version": "1.0.0.0",
 	"Author": "incompletebiped",
 	"URL": "https://github.com/incompletebiped/streamdeck-discord-markallread-plugin",
-	"Description": "One key that marks every server as read in the Discord desktop app.",
+	"Description": "Unofficial key that marks every server as read in the Discord desktop app.",
 	"CodePath": "bin/plugin.js",
 	"Category": "Discord Read",
 	"CategoryIcon": "imgs/plugin/category-icon",
 	"Icon": "imgs/plugin/marketplace",
 	"PropertyInspectorPath": "ui/mark-all-read.html",
-	"SDKVersion": 2,
+	"SDKVersion": 3,
 	"Software": {
 		"MinimumVersion": "7.1"
 	},
 	"Nodejs": {
-		"Version": "24",
-		"Debug": "enabled"
+		"Version": "24"
 	},
 	"OS": [
 		{
@@ -32,7 +31,9 @@
 			"Icon": "imgs/actions/mark-all-read/icon",
 			"Tooltip": "Marks every Discord server as read.",
 			"PropertyInspectorPath": "ui/mark-all-read.html",
-			"Controllers": ["Keypad"],
+			"Controllers": [
+				"Keypad"
+			],
 			"States": [
 				{
 					"Image": "imgs/actions/mark-all-read/key",
