@@ -5,11 +5,13 @@
 		<script src="sdpi-components.js"></script>
 	</head>
 	<body>
-		<sdpi-item label="Discord app">
-			<sdpi-select setting="client" default="stable">
-				<option value="stable">Stable</option>
+		<sdpi-item label="App">
+			<sdpi-select setting="client" default="auto">
+				<option value="auto">Whichever is open</option>
+				<option value="stable">Discord Stable</option>
 				<option value="ptb">Public Test Build</option>
 				<option value="canary">Canary</option>
+				<option value="vesktop">Vesktop</option>
 			</sdpi-select>
 		</sdpi-item>
 
@@ -29,13 +31,17 @@
 			<sdpi-checkbox setting="ackRotationHotkey"></sdpi-checkbox>
 		</sdpi-item>
 
+		<div style="display: none">
+			<sdpi-textfield setting="settingsVersion" default="2"></sdpi-textfield>
+		</div>
+
 		<p style="margin: 4px 16px 12px; font: 12px/1.45 sans-serif; opacity: 0.85">
-			The key focuses the Discord desktop app and walks the server list with Discord's own shortcuts:
-			Shift+Esc marks the current server read, and Ctrl+Alt+Down moves to the next server. Direct messages
-			are skipped. Expand server folders first, and set the server count to at least the number of icons in
-			your list. Some graphics drivers use Ctrl+Alt+Arrow to rotate the screen, so turn that hotkey off
-			before you check the box above. Leave the keyboard alone while the key runs. This plugin does not log
-			in to Discord.
+			The key focuses Discord or Vesktop, whichever is in front, and walks the server list with the app's
+			own shortcuts: Shift+Esc marks the current server read, and Ctrl+Alt+Down moves to the next server.
+			Direct messages are skipped. Expand server folders first, and set the server count to at least the
+			number of icons in your list. Some graphics drivers use Ctrl+Alt+Arrow to rotate the screen, so turn
+			that hotkey off before you check the box above. Until that box is checked, the key shows a warning and
+			the title Setup. Leave the keyboard alone while the key runs. This plugin does not log in.
 		</p>
 	</body>
 </html>

@@ -15,6 +15,7 @@ import {
 	missingDefaults,
 	parseScriptLine,
 	resolveSettings,
+	SETTINGS_VERSION,
 	titleForError,
 	type MarkAllSettings,
 	type ResolvedSettings,
@@ -97,6 +98,7 @@ export class MarkReadError extends Error {
 
 function settingsPayload(settings: ResolvedSettings): MarkAllSettings {
 	return {
+		settingsVersion: SETTINGS_VERSION,
 		client: settings.client,
 		serverCount: settings.serverCount,
 		delayMs: settings.delayMs,

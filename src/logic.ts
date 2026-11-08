@@ -1,7 +1,10 @@
-export type DiscordClient = "stable" | "ptb" | "canary";
+export type DiscordClient = "auto" | "stable" | "ptb" | "canary" | "vesktop";
+
+export const SETTINGS_VERSION = 2;
 
 export type MarkAllSettings = {
-	client?: DiscordClient;
+	settingsVersion?: number | string;
+	client?: DiscordClient | string;
 	serverCount?: number | string;
 	delayMs?: number | string;
 	climbToTop?: boolean | string | number;
@@ -10,7 +13,7 @@ export type MarkAllSettings = {
 
 export type ResolvedSettings = {
 	client: DiscordClient;
-	processName: "Discord" | "DiscordPTB" | "DiscordCanary";
+	processName: "Auto" | "Discord" | "DiscordPTB" | "DiscordCanary" | "vesktop";
 	serverCount: number;
 	delayMs: number;
 	climbToTop: boolean;
@@ -18,10 +21,14 @@ export type ResolvedSettings = {
 };
 
 const PROCESS_NAMES = {
+	auto: "Auto",
 	stable: "Discord",
 	ptb: "DiscordPTB",
 	canary: "DiscordCanary",
+	vesktop: "vesktop",
 } as const;
+
+const CLIENTS: readonly DiscordClient[] = ["auto", "stable", "ptb", "canary", "vesktop"];
 
 export type ScriptEvent =
 	| { type: "progress"; current: number; total: number }
@@ -30,9 +37,28 @@ export type ScriptEvent =
 	| { type: "info"; message: string }
 	| { type: "ignore" };
 
+function isClient(value: unknown): value is DiscordClient {
+	return typeof value === "string" && (CLIENTS as readonly string[]).includes(value);
+}
+
+function isCurrentVersion(value: unknown): boolean {
+	return value === SETTINGS_VERSION || value === String(SETTINGS_VERSION);
+}
+
+function migrateClient(settings: MarkAllSettings | undefined): DiscordClient {
+	if (isCurrentVersion(settings?.settingsVersion) && isClient(settings?.client)) {
+		return settings.client;
+	}
+	// Keys saved before Vesktop support stored the old default "stable" even when
+	// the user never picked a client. Keep an explicit PTB, Canary, or Vesktop choice.
+	if (settings?.client === "ptb" || settings?.client === "canary" || settings?.client === "vesktop") {
+		return settings.client;
+	}
+	return "auto";
+}
+
 export function resolveSettings(settings: MarkAllSettings | undefined): ResolvedSettings {
-	const client: DiscordClient =
-		settings?.client === "ptb" || settings?.client === "canary" ? settings.client : "stable";
+	const client = migrateClient(settings);
 
 	return {
 		client,
@@ -50,7 +76,8 @@ export function missingDefaults(settings: MarkAllSettings | undefined): boolean 
 	}
 
 	return (
-		settings.client === undefined ||
+		!isCurrentVersion(settings.settingsVersion) ||
+		!isClient(settings.client) ||
 		settings.serverCount === undefined ||
 		settings.delayMs === undefined ||
 		settings.climbToTop === undefined ||
@@ -97,7 +124,7 @@ export function parseScriptLine(line: string): ScriptEvent {
 export function titleForError(code: string): string {
 	switch (code) {
 		case "NOT_RUNNING":
-			return "Open Discord";
+			return "Not open";
 		case "FOCUS":
 			return "Unfocused";
 		default:

@@ -1,11 +1,12 @@
-# Focuses the Discord desktop window and marks servers read with Discord's own shortcuts.
+# Focuses Discord or Vesktop and marks servers read with the app's own shortcuts.
 # Shift+Esc marks the current server. Ctrl+Alt+Up/Down changes servers.
-# Aborts without sending keys when Discord is not the foreground window.
+# Auto uses the foreground client, or the topmost visible one when several are open.
+# Aborts without sending keys when that window is not in front.
 #Requires -Version 5.1
 param(
     [int]$ServerCount = 60,
     [int]$DelayMs = 120,
-    [string]$ProcessName = "Discord",
+    [string]$ProcessName = "Auto",
     [string]$ClimbToTop = "true",
     [switch]$SelfTest,
     [switch]$CheckOnly
@@ -43,9 +44,9 @@ function Get-Steps([int]$Count, [bool]$Climb) {
     return $steps
 }
 
-$allowed = @("Discord", "DiscordPTB", "DiscordCanary")
+$allowed = @("Auto", "Discord", "DiscordPTB", "DiscordCanary", "vesktop")
 if ($allowed -notcontains $ProcessName) {
-    Write-Line "ERROR PROCESS Unsupported Discord app"
+    Write-Line "ERROR PROCESS Unsupported app"
     exit 1
 }
 
@@ -104,6 +105,15 @@ public static extern uint GetCurrentThreadId();
 [DllImport("user32.dll")]
 public static extern bool BringWindowToTop(IntPtr hWnd);
 
+[DllImport("user32.dll")]
+public static extern IntPtr GetTopWindow(IntPtr hWnd);
+
+[DllImport("user32.dll")]
+public static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
+
+[DllImport("user32.dll")]
+public static extern bool IsWindowVisible(IntPtr hWnd);
+
 [StructLayout(LayoutKind.Sequential)]
 public struct KEYBDINPUT {
     public ushort wVk;
@@ -148,6 +158,12 @@ public static void ReleaseModifiers() {
 public static uint ForegroundProcessId() {
     uint pid;
     GetWindowThreadProcessId(GetForegroundWindow(), out pid);
+    return pid;
+}
+
+public static uint WindowProcessId(IntPtr hWnd) {
+    uint pid;
+    GetWindowThreadProcessId(hWnd, out pid);
     return pid;
 }
 
@@ -220,6 +236,52 @@ function Send-Chord([uint16[]]$Keys, [bool]$Arrows) {
     Start-Sleep -Milliseconds $rest
 }
 
+function Find-ClientWindow([string]$Name) {
+    $names = @($Name)
+    if ($Name -eq "Auto") {
+        $names = @("vesktop", "Discord", "DiscordPTB", "DiscordCanary")
+    }
+
+    $candidates = New-Object System.Collections.Generic.List[System.Diagnostics.Process]
+    foreach ($name in $names) {
+        foreach ($proc in @(Get-Process -Name $name -ErrorAction SilentlyContinue)) {
+            if ($null -ne $proc -and $proc.MainWindowHandle -ne [IntPtr]::Zero -and $proc.MainWindowTitle) {
+                $candidates.Add($proc)
+            }
+        }
+    }
+
+    if ($candidates.Count -eq 0) {
+        return $null
+    }
+
+    $foreground = [DiscordMarkRead.Native]::ForegroundProcessId()
+    foreach ($candidate in $candidates) {
+        if ([uint32]$candidate.Id -eq $foreground) {
+            return $candidate
+        }
+    }
+
+    if ($candidates.Count -eq 1) {
+        return $candidates[0]
+    }
+
+    $hwnd = [DiscordMarkRead.Native]::GetTopWindow([IntPtr]::Zero)
+    for ($guard = 0; $guard -lt 512 -and $hwnd -ne [IntPtr]::Zero; $guard++) {
+        if ([DiscordMarkRead.Native]::IsWindowVisible($hwnd) -and -not [DiscordMarkRead.Native]::IsIconic($hwnd)) {
+            $owner = [DiscordMarkRead.Native]::WindowProcessId($hwnd)
+            foreach ($candidate in $candidates) {
+                if ([uint32]$candidate.Id -eq $owner) {
+                    return $candidate
+                }
+            }
+        }
+        $hwnd = [DiscordMarkRead.Native]::GetWindow($hwnd, [uint32]2)
+    }
+
+    return $null
+}
+
 function Focus-Discord([IntPtr]$Window) {
     for ($try = 0; $try -lt 8; $try++) {
         [DiscordMarkRead.Native]::keybd_event(0x12, 0, 0, [UIntPtr]::Zero)
@@ -246,17 +308,15 @@ if ($SelfTest) {
     exit 0
 }
 
-$window = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue |
-    Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero -and $_.MainWindowTitle } |
-    Select-Object -First 1
+$window = Find-ClientWindow $ProcessName
 
 if (-not $window) {
-    Write-Line "ERROR NOT_RUNNING Discord is not open"
+    Write-Line "ERROR NOT_RUNNING Discord or Vesktop is not open"
     exit 2
 }
 
 if ($CheckOnly) {
-    Write-Line ("INFO found pid=" + $window.Id + " title=" + $window.MainWindowTitle)
+    Write-Line ("INFO found process=" + $window.ProcessName + " pid=" + $window.Id + " title=" + $window.MainWindowTitle)
     Write-Line "DONE"
     exit 0
 }
@@ -266,19 +326,19 @@ $marked = 0
 try {
     Write-Line "INFO focusing"
     if (-not (Focus-Discord ([IntPtr]$window.MainWindowHandle))) {
-        Write-Line "ERROR FOCUS Could not focus Discord"
+        Write-Line "ERROR FOCUS Could not focus the app"
         exit 3
     }
     Start-Sleep -Milliseconds 200
     if ([DiscordMarkRead.Native]::ForegroundProcessId() -ne [uint32]$window.Id) {
-        Write-Line "ERROR FOCUS Discord did not stay in front"
+        Write-Line "ERROR FOCUS The app did not stay in front"
         exit 3
     }
     Write-Line "INFO focused"
 
     foreach ($step in $steps) {
         if ([DiscordMarkRead.Native]::ForegroundProcessId() -ne [uint32]$window.Id) {
-            Write-Line "ERROR FOCUS Discord lost focus"
+            Write-Line "ERROR FOCUS The app lost focus"
             exit 3
         }
         switch ($step) {
