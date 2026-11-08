@@ -2,10 +2,10 @@
 	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
 	"UUID": "com.incompletebiped.discord-mark-read",
 	"Name": "Discord Read",
-	"Version": "1.1.0.0",
+	"Version": "1.2.0.0",
 	"Author": "incompletebiped",
 	"URL": "https://github.com/incompletebiped/streamdeck-discord-markallread-plugin",
-	"Description": "Unofficial key that marks every server as read in Discord or Vesktop.",
+	"Description": "Unofficial key that marks every server as read with Vesktop's Read All button.",
 	"CodePath": "bin/plugin.js",
 	"Category": "Discord Read",
 	"CategoryIcon": "imgs/plugin/category-icon",
@@ -29,7 +29,7 @@
 			"Name": "Mark All Servers Read",
 			"UUID": "com.incompletebiped.discord-mark-read.mark-all",
 			"Icon": "imgs/actions/mark-all-read/icon",
-			"Tooltip": "Marks every server as read in Discord or Vesktop.",
+			"Tooltip": "Presses Vesktop's Read All button.",
 			"PropertyInspectorPath": "ui/mark-all-read.html",
 			"Controllers": [
 				"Keypad"

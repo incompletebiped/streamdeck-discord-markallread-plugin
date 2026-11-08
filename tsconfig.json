@@ -6,6 +6,8 @@
 		"strict": true,
 		"noImplicitOverride": true,
 		"customConditions": ["node"],
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
 		"skipLibCheck": true,
 		"types": ["node"]
 	},

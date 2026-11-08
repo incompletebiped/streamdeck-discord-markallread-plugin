@@ -1,38 +1,33 @@
 # Discord mark-all-read for Stream Deck
 
-One Stream Deck key that marks every server as read in the Discord desktop app or in Vesktop.
+One Stream Deck key that marks every server as read by pressing Vesktop's Read All button.
 
 > An unofficial, community plugin. It is not made by or affiliated with Discord or Elgato.
 > Discord is a trademark of Discord Inc.
 
 | Button | What it does |
 |---|---|
-| **Mark All Servers Read** | Brings Discord or Vesktop forward and walks the server list. Each server is marked read with the app's own shortcuts. |
+| **Mark All Servers Read** | Presses the **Read All** button from Vencord's Read All Notifications Button plugin. That button marks every unread server at once. |
 
 ## Requirements
 
 - Windows 10 or 11.
 - Stream Deck 7.1 or later.
-- Discord desktop (Stable, Public Test Build, or Canary) or [Vesktop](https://github.com/Vencord/Vesktop). The browser app does not receive these shortcuts. The key uses whichever of those windows is in front.
+- [Vesktop](https://github.com/Vencord/Vesktop), with Vencord's **Read All Notifications Button** plugin enabled. Official Discord works too when that same Vencord plugin is enabled there.
 
 ## Install
 
 1. Double-click `com.incompletebiped.discord-mark-read.streamDeckPlugin` from this repo's [releases](https://github.com/incompletebiped/streamdeck-discord-markallread-plugin/releases) (or build it with `npm run pack`).
 2. Drag **Mark All Servers Read** from the **Discord Read** category onto a key.
-3. Click that key in the Stream Deck app. Set **Servers to visit** to at least the number of icons in your server list, and check **Ctrl+Alt+Arrow does not rotate my display**.
-4. In Discord or Vesktop, expand any server folders. Press the key and leave the keyboard alone until the count finishes.
-
-The key shows **Setup** and a warning triangle until that checkbox is saved. That warning means the setup check is still open. It does not mean the app failed to launch. Some graphics drivers use Ctrl+Alt+Arrow to rotate the screen, and Discord and Vesktop use the same chord to move between servers. Turn the rotate hotkey off before checking the box. Leave **App** on **Whichever is open** to drive the window in front, or pick one client.
+3. In Vesktop, enable **Read All Notifications Button** under Vencord plugins. You should see a **Read All** button above the server list.
+4. Reload Vesktop once with Ctrl+R. The first press after an update can show **Reload** until you do this.
+5. Press the Stream Deck key. It asks Vesktop to press that Read All button. The server list is left alone, and no keyboard shortcuts are sent.
 
 ## What a press does
 
-The plugin does not log in and does not use a token. It only sends the app's documented shortcuts, and only after that window is in front:
+The plugin does not log in and does not use a token. It does not send keystrokes. Vesktop stays connected to a local helper, and a press tells Vesktop to click the **Read All** button already drawn by Vencord. That button is the open-source Read All Notifications Button: it acknowledges every unread server channel, voice channel, and active thread in one step. Direct messages are left as that plugin leaves them.
 
-1. Ctrl+Alt+Up until the selection is at the top of the server list.
-2. Ctrl+Alt+Down once, which leaves Home so direct messages are skipped.
-3. Shift+Esc marks the current server read, then Ctrl+Alt+Down moves to the next server.
-
-If that window is not in front, the key stops and no shortcuts are sent. Direct messages are not marked. A collapsed folder counts as one icon, so expand folders first. The visit count maxes out at 200. If a server stays unread, raise **Pause between steps**. When both Discord and Vesktop are open, the key uses the one in front.
+The helper listens on `127.0.0.1` only. The first time the Stream Deck plugin runs, it adds a small hook to the local Vencord renderer so Vesktop can hear that press. Reload Vesktop after that install. A Vesktop update replaces the renderer, and the next press installs the hook again; reload once more when the key says **Reload**. **Enable** means the Read All plugin is off. **Open app** means Vesktop is not running.
 
 ## Develop
 
